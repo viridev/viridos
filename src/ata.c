@@ -2,15 +2,15 @@
 #include <ata.h>
 #include <stdint.h>
 
-void ata_read_disk(int LBA, char *buffer)
+void ata_read_disk(int lba, char *buffer)
 {
-    outb(0x1F6, 0xE0 | ((LBA >> 24) & 0x0F)); // drive select
-    outb(0x1F1, 0x00);                        // wait
-    outb(0x1F2, 1);                           // Sector count
-    outb(0x1F3, LBA);                         // send LBA
-    outb(0x1F4, LBA >> 8);                    // ...
-    outb(0x1F5, LBA >> 16);                   // ...
-    outb(0x1F7, 0x20);                        // Send Command READ
+    outb(0x1F6, 0xe0 | ((lba >> 0x18) & 0x0f)); // select drive
+    outb(0x1F1, 0);                             // use PIO
+    outb(0x1F2, 1);                             // sector count
+    outb(0x1F3, lba);                           // send lba
+    outb(0x1F4, lba >> 8);                      // offset lba by 8 bits
+    outb(0x1F5, lba >> 16);                     // offset lba by 16 bits
+    outb(0x1F7, 0x20);                          // send read command
 
     while (!(inb(0x1F7) & 8))
         ;

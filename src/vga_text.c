@@ -5,12 +5,19 @@
 #include <io.h>
 
 #define VGA_WIDTH 80
+#define VGA_HEIGHT 25
 
 unsigned char vgat_fg = 0xf;
 unsigned char vgat_bg = 0x0;
 int vgat_x = 0;
 int vgat_y = 0;
 bool vgat_cursor_follow = true;
+
+void VGAT_PUTC(unsigned char c, int x, int y, unsigned char fg, unsigned char bg)
+{
+	uint16_t colors = (bg << 4) | (fg & 0x0F);
+	*((volatile uint16_t *)0xB8000 + (y * 80 + x)) = c | (colors << 8);
+}
 
 void vgat_putc(unsigned char c)
 {
@@ -21,9 +28,7 @@ void vgat_putc(unsigned char c)
 		return;
 	}
 
-	uint16_t attrib = (vgat_bg << 4) | (vgat_fg & 0x0F);
-
-	*((volatile uint16_t *)0xB8000 + (vgat_y * 80 + vgat_x)) = c | (attrib << 8);
+	VGAT_PUTC(c, vgat_x, vgat_y, vgat_fg, vgat_bg);
 
 	vgat_x++;
 
@@ -37,6 +42,20 @@ void vgat_print(const char *string)
 	{
 		vgat_putc(*string++);
 	}
+}
+
+void vgat_fill(unsigned char color)
+{
+	for (int x = 0; x < VGA_WIDTH; x++)
+		for (int y = 0; y < VGA_HEIGHT; y++)
+			VGAT_PUTC(' ', x, y, color, color);
+}
+
+void vgat_rect(int x, int y, int w, int h, unsigned char color)
+{
+	for (int vx = x; vx < x + w; vx++)
+		for (int vy = y; vy < y + h; vy++)
+			VGAT_PUTC(' ', vx, vy, color, color);
 }
 
 void vgat_cursor_disable()
