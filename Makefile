@@ -4,7 +4,7 @@ CC = i686-elf-gcc
 C_SOURCES = $(wildcard src/*.c)
 ASM_SOURCES = $(wildcard src/*.s)
 
-NAME=newos
+NAME=virid
 
 OBJ = ${C_SOURCES:.c=.o} ${ASM_SOURCES:.s=.o}
 
