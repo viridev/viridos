@@ -1,3 +1,5 @@
+.global _start
+
 .set ALIGN,    1<<0
 .set MEMINFO,  1<<1
 .set FLAGS,    ALIGN | MEMINFO
@@ -17,15 +19,11 @@ stack_bottom:
 stack_top:
 
 .section .text
-.global _start
-.type _start, @function
 _start:
 	mov $stack_top, %esp
 
 	call kernel_main
 
 	cli
-1:	hlt
-	jmp 1b
 
 .size _start, . - _start
