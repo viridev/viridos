@@ -30,11 +30,7 @@ iso:
 	grub-mkrescue -o virid.iso isodir
 
 clean:
-	rm -rf isodir/
-	rm -rf src/*.a
-	rm -rf src/*.o
-	rm -rf *.iso
-	rm -rf *.bin
+	rm -rf $(shell find . -name '*.o') $(shell find . -name '*.a') $(shell find . -name '*.bin') $(shell find . -name '*.iso')
 
 run:
 	qemu-system-i386 -cdrom virid.iso -serial stdio -vga std -no-reboot -no-shutdown -m 128M
