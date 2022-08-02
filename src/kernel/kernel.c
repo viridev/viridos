@@ -12,7 +12,10 @@ void kernel_main(void)
 	gdt_init();
 	idt_init();
 
-	asm("int $0x0");
+	
 
-	while (1);
+	asm("int $0x80");
+
+	while (1)
+		;
 }
