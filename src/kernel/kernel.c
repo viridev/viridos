@@ -1,20 +1,24 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <multiboot.h>
+
 #include <video/vga_text.h>
 
 #include <cpu/descriptors/gdt.h>
 #include <cpu/descriptors/idt.h>
 
-void kernel_main(void)
+#include <memory/mm.h>
+
+void kernel_main(multiboot_t *mbd)
 {
+	mboot = mbd;
+
 	console_init();
 	gdt_init();
 	idt_init();
 
-	
-
-	asm("int $0x80");
+	mm_init();
 
 	while (1)
 		;
