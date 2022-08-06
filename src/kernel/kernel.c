@@ -4,6 +4,7 @@
 #include <multiboot.h>
 
 #include <video/vga_text.h>
+#include <video/vbe.h>
 
 #include <cpu/descriptors/gdt.h>
 #include <cpu/descriptors/idt.h>
