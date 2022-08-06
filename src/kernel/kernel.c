@@ -8,6 +8,7 @@
 
 #include <cpu/descriptors/gdt.h>
 #include <cpu/descriptors/idt.h>
+#include <cpu/pit.h>
 
 #include <memory/mm.h>
 
@@ -21,6 +22,9 @@ void kernel_main(multiboot_t *mbd)
 
 	mm_init();
 
+	pit_init(69420);
+
 	while (1)
+	asm volatile ("hlt");
 		;
 }
