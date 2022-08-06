@@ -11,13 +11,13 @@ ASFLAGS=-felf32
 
 LINK_SOURCES=$(shell find . -name '*.o')
 
-all: as $(C_FILES_OUT) link iso run clean
+all: as $(C_FILES_OUT) link iso run
 
 as:
 	$(AS) 'asm/boot.s' -o 'asm/boot.o'
 	$(NASM) $(ASFLAGS) 'asm/gdt.asm' -o 'asm/gdt.o'
 	$(NASM) $(ASFLAGS) 'asm/interrupts.asm' -o 'asm/interrupts.o'
-
+	$(NASM) $(ASFLAGS) 'asm/realmode.asm' -o 'asm/realmode.o'
 
 link:
 	$(LD) -w -T 'linker.ld' -o 'virid.bin' -ffreestanding -O2 -nostdlib $(LINK_SOURCES) -lgcc	

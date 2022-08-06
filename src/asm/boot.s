@@ -22,6 +22,8 @@ stack_top:
 _start:
 	mov $stack_top, %esp
 
+	push %ebx # push pointer to the Multiboot information structure
+
 	call kernel_main
 
 	cli

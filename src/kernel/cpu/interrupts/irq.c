@@ -6,8 +6,6 @@ isr_t irq_handlers[16];
 
 void irq_handler(registers_t *regs)
 {  
-    printf("aaa");
-
     void (*handler)(registers_t *regs);
 
     /* Find out if we have a custom handler to run for this

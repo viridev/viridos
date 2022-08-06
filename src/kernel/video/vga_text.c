@@ -1,5 +1,5 @@
 #include "vga_text.h"
-#include <memory/memfunc.h>
+#include <memory/mm.h>
 #include <stdarg.h>
 
 uint16_t *vga_buffer = (uint16_t *)0xB8000;

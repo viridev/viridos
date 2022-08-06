@@ -25,32 +25,29 @@ idt_flush:
 
 global isr_common_stub:function isr_common_stub.end-isr_common_stub
 isr_common_stub:
-    pushad              ; push general purpose registers
+    pusha                    ; Pushes edi,esi,ebp,esp,ebx,edx,ecx,eax
 
-    mov AX, DS          ; load data segment into ax
-    push EAX            ; push data segment stored in ax
+    mov ax, ds               ; Lower 16-bits of eax = ds.
+    push eax                 ; save the data segment descriptor
 
-    mov AX, 0x10        ; load segment value into ax
-    mov DS, AX          ; load segment into ds
-    mov ES, AX          ; load segment into es
-    mov FS, AX          ; load segment into fs
-    mov GS, AX          ; load segment into gs
-    mov SS, AX          ; load segment into ss
+    mov ax, 0x10  ; load the kernel data segment descriptor
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
 
-    push ESP            ; push register struct pointer as argument
-    call isr_handler    ; call isr handler method
-    add ESP, 4          ; pop register struct
+    call isr_handler
 
-    pop EBX             ; pop segment register
-    mov DS, BX          ; restore ds segment
-    mov ES, BX          ; restore es segment
-    mov FS, BX          ; restore fs segment
-    mov GS, BX          ; restore gs segment
-    mov SS, BX          ; restore ss segment
+    pop eax        ; reload the original data segment descriptor
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
 
-    popad               ; pop general purpose registers
-    add ESP, 8          ; pop error code and interrupt number
-    iretd               ; return from interrupt
+    popa                     ; Pops edi,esi,ebp...
+    add esp, 8     ; Cleans up the pushed error code and pushed ISR number
+    sti
+    iret  
 .end:
 
 global irq_common_stub:function irq_common_stub.end-irq_common_stub
