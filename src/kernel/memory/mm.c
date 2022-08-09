@@ -3,10 +3,7 @@
 #include <realmode.h>
 #include <video/vga_text.h>
 
-extern uint32_t kernel_start;
-extern uint32_t kernel_end;
-
-uint32_t installed_memory;
+uint32_t placement_adr;
 
 void* memset(void* dest, int c, uint32_t n)
 {
@@ -41,10 +38,29 @@ static void detect_installed_ram()
 
         installed_memory += mmmt->len_low;
     }
-    printf("Installed Memory: %x(%dMB)", installed_memory, installed_memory/1024/1024);
+    printf("Installed Memory: %x(%dMB)\n", installed_memory, installed_memory/1024/1024);
+    printf("Kernel start:%x Kernel end:%x\n", &kernel_start, &kernel_end);
 }
 
 void mm_init()
 {
     detect_installed_ram();
+    placement_adr = &kernel_end;
+}
+
+void* kmalloc(size_t size, int align, uint32_t *phys)
+{
+    if (align)
+    {
+        placement_adr &= 0xFFFFF000;
+        placement_adr += 0x1000;
+    }
+    if (phys)
+    {
+        *phys = placement_adr;
+    }
+
+    uint32_t temp = placement_adr;
+    placement_adr += size;
+    return temp;
 }
