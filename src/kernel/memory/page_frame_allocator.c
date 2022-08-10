@@ -33,7 +33,7 @@ void page_frame_allocator_init()
                 usable_mem_len = mmmt->len_low;
                 usable_mem_start = mmmt->addr_low;
             }                
-        printf("Start Addr: %x%x | Length: %x%x | Size: %x | Type: %d\n", mmmt->addr_high, mmmt->addr_low, mmmt->len_high, mmmt->len_low, mmmt->size, mmmt->type);
+        printf("Start Addr: 0x%x%x | Length: 0x%x%x | Size: %x | Type: %d\n", mmmt->addr_high, mmmt->addr_low, mmmt->len_high, mmmt->len_low, mmmt->size, mmmt->type);
 
         installed_memory += mmmt->len_low;
     }
@@ -41,8 +41,8 @@ void page_frame_allocator_init()
     generate_map(usable_mem_start, usable_mem_len); // tell the generator how much memory to initally mark as being free
     lock_pages(&kernel_start, (&kernel_end-&kernel_start)/1024 + 1); // lock pages for the kernel code
 
-    printf("Kernel: start 0x%x, end 0x%x\n", &kernel_start, &kernel_end);
-    printf("MEMORY: installed %dKB, res %dKB, useable %dKB\n", installed_memory/1024, reserved_memory/1024, usable_memory/1024);
+    printf("MEMORY - kernel: start 0x%x, end 0x%x\n", &kernel_start, &kernel_end);
+    printf("MEMORY: installed %dKB, reserved %dKB, usable %dKB\n", installed_memory/1024, reserved_memory/1024, usable_memory/1024);
     printf("MEMORY: free %dKB, used %dKB\n", free_memory/1024, used_memory/1024);
 }
 
