@@ -18,6 +18,7 @@ as:
 	$(NASM) $(ASFLAGS) 'asm/gdt.asm' -o 'asm/gdt.o'
 	$(NASM) $(ASFLAGS) 'asm/interrupts.asm' -o 'asm/interrupts.o'
 	$(NASM) $(ASFLAGS) 'asm/realmode.asm' -o 'asm/realmode.o'
+	$(NASM) $(ASFLAGS) 'asm/paging.asm' -o 'asm/paging.o'
 
 link:
 	$(LD) -w -T 'linker.ld' -o 'virid.bin' -ffreestanding -O2 -nostdlib $(LINK_SOURCES) -lgcc	
