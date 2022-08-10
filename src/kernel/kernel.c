@@ -10,7 +10,14 @@
 #include <cpu/descriptors/idt.h>
 #include <cpu/pit.h>
 
-#include <memory/mm.h>
+#include <memory/mem.h>
+#include <memory/page_frame_allocator.h>
+#include <memory/paging.h>
+
+static void testMain()
+{
+    printf("Msg from thread!");
+}
 
 void kernel_main(multiboot_t *mbd)
 {
@@ -20,9 +27,11 @@ void kernel_main(multiboot_t *mbd)
 	gdt_init();
 	idt_init();
 
-	mm_init();
-
-	pit_init(69420);
+	mem_init();
+	page_frame_allocator_init();
+	paging_init();
+	
+	//pit_init(69420);
 
 	while (1)
 	asm volatile ("hlt");
