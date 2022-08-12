@@ -39,8 +39,7 @@ void page_frame_allocator_init()
     }
 
     generate_map(usable_mem_start, usable_mem_len); // tell the generator how much memory to initally mark as being free
-    lock_pages(&kernel_start, (&kernel_end-&kernel_start)/1024 + 1); // lock pages for the kernel code
-
+    lock_pages(&kernel_start, ((uint32_t)&kernel_end-(uint32_t)&kernel_start)/0x1000 + 1); // lock pages for the kernel code
     printf("MEMORY - kernel: start 0x%x, end 0x%x\n", &kernel_start, &kernel_end);
     printf("MEMORY: installed %dKB, reserved %dKB, usable %dKB\n", installed_memory/1024, reserved_memory/1024, usable_memory/1024);
     printf("MEMORY: free %dKB, used %dKB\n", free_memory/1024, used_memory/1024);
@@ -81,7 +80,7 @@ void free_pages(void *address, size_t count)
 {
     uint32_t index = (uint32_t)address / 0x1000;
 
-    for(int i = 0; i < count; i++) map[i] = PAGE_FREE;
+    for(int i = 0; i < count; i++) map[i+ + index] = PAGE_FREE;
 
     free_memory += count * 4096;
     used_memory -= count * 4096;
@@ -100,7 +99,7 @@ void lock_pages(void *address, size_t count)
 {
     uint32_t index = (uint32_t)address / 0x1000;
 
-    for(int i = 0; i < count; i++) map[i] = PAGE_LOCKED;
+    for(int i = 0; i < count; i++) map[i + index] = PAGE_LOCKED;
 
     free_memory -= count * 4096;
     used_memory += count * 4096;
@@ -119,10 +118,23 @@ void reserve_pages(void *address, size_t count)
 {
     uint32_t index = (uint32_t)address / 0x1000;
 
-    for(int i = 0; i < count; i++) map[i] = PAGE_RESERVED;
+    for(int i = 0; i < count; i++) map[i + index] = PAGE_RESERVED;
 
     reserved_memory += count * 4096;
     usable_memory -= count * 4096;
+}
+
+void* request_page()
+{
+    for (int i = 0; i < map_size; i++)
+        if (map[i] == PAGE_FREE)
+        {
+            lock_page((void*)(i * 0x1000));
+            return (void*)(i * 4096);
+        }    
+
+    return NULL;
+    // out of ram
 }
 
 void get_ram_size() { return installed_memory;}

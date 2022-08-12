@@ -13,6 +13,8 @@ void lock_pages(void *address, size_t count);
 void reserve_page(void *address);
 void reserve_pages(void *address, size_t count);
 
+void* request_page();
+
 // get the amount of installed ram in bytes
 void get_ram_size();
 // get the amount of free ram in bytes
