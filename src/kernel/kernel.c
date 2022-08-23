@@ -31,12 +31,7 @@ void kernel_main(multiboot_t *mbd)
 	mem_init();
 	page_frame_allocator_init();
 
-	for (int i = 0; i < 10; i++)
-	{
-		printf("%x\n", request_page());
-	}
-	//paging_init();
-	
+	paging_init();
 
 	while (1)
 		asm volatile ("hlt");
