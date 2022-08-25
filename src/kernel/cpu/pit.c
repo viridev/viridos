@@ -23,4 +23,5 @@ void pit_init(int hz)
     pit_set_freq(hz);
 
     asm("sti"); // set the interrupt flag so the IRQs actually get called
+    printf("PIT initialized with a freq of %dhz.\n", hz);
 }

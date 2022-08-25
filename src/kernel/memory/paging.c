@@ -1,28 +1,42 @@
 #include "paging.h"
+#include <memory/mem.h>
+#include <video/vga_text.h>
 
-uint32_t page_directory[1024] __attribute__((aligned(4096)));
-uint32_t first_page_table[1024] __attribute__((aligned(4096)));
+page_dir_t *kernel_dir = 0;
+page_dir_t *currentd_dir = 0;
 
 extern void load_page_dir(uintptr_t*);
 extern void enable_paging();
 
+page_table_t *first_page_table;
+
 void paging_init()
 {
-    for(uint32_t i = 0; i < 1024; i++)
+    kernel_dir = (page_dir_t*)kmalloc(sizeof(page_dir_t), 1, 0);
+    first_page_table = (page_table_t*)kmalloc(sizeof(page_table_t), 1, 0);
+    memset(kernel_dir, 0, sizeof(page_dir_t));
+    currentd_dir = kernel_dir;
+
+    for(int i = 1; i < 1024; i++)
     {
-        page_directory[i] = 0b010;
+        kernel_dir->tables[i].user = 0;
+        kernel_dir->tables[i].read_write = 1;
+        kernel_dir->tables[i].present = 0;
     }
 
-    for(uint32_t i = 0; i < 1024; i++)
+    for(int i = 0; i < 1024; i++)
     {
-        // As the address is page aligned, it will always leave 12 bits zeroed.
-        // Those bits are used by the attributes ;)
-        first_page_table[i] = (i * 0x1000) | 0b011; // attributes: supervisor level, read/write, present.
+        first_page_table->pages[i].address = i * 0x1000 >> 12;
+        first_page_table->pages[i].user = 0;
+        first_page_table->pages[i].read_write = 1;
+        first_page_table->pages[i].present = 1;
     }
 
-    // attributes: supervisor level, read/write, present
-    page_directory[0] = (uintptr_t)first_page_table | 0b011;
+    kernel_dir->tables[0].address = (uint32_t)first_page_table->pages >> 12;
+    kernel_dir->tables[0].user = 0;
+    kernel_dir->tables[0].read_write = 1;
+    kernel_dir->tables[0].present = 1;
 
-    load_page_dir(page_directory);
+    load_page_dir(kernel_dir->tables);
     enable_paging();
 }

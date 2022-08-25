@@ -26,14 +26,13 @@ void kernel_main(multiboot_t *mbd)
 	console_init();
 	gdt_init();
 	idt_init();
+	pit_init(500);
 
 	mem_init();
 	page_frame_allocator_init();
+
 	paging_init();
-	
-	//pit_init(69420);
 
 	while (1)
-	asm volatile ("hlt");
-		;
+		asm volatile ("hlt");
 }
