@@ -1,4 +1,5 @@
 #include "page_frame_allocator.h"
+#include <console.h>
 #include <memory/mem.h>
 #include <multiboot.h>
 
@@ -17,7 +18,7 @@ static void generate_map(); //prototype
 void page_frame_allocator_init()
 {
     if(!(mboot->flags >> 6 & 0x01))
-        printf("Invalid memory map!");
+        console_log("Invalid memory map!");
 
     size_t usable_mem_len = 0;
     uint32_t usable_mem_start;
@@ -27,43 +28,44 @@ void page_frame_allocator_init()
         multiboot_memory_map_t *mmmt = (multiboot_memory_map_t*)(mboot->mmap_addr + i);
 
         // get the biggest usable memory block
-        if (mmmt->type == MULTIBOOT_MEMORY_AVAILABLE)
-            if (mmmt->len_low > usable_mem_len)
+        if(mmmt->type == MULTIBOOT_MEMORY_AVAILABLE)
+            if(mmmt->len_low > usable_mem_len)
             {
                 usable_mem_len = mmmt->len_low;
                 usable_mem_start = mmmt->addr_low;
             }                
-        printf("Start Addr: 0x%x%x | Length: 0x%x%x | Size: %x | Type: %d\n", mmmt->addr_high, mmmt->addr_low, mmmt->len_high, mmmt->len_low, mmmt->size, mmmt->type);
+        console_log("Start Addr: 0x%x%x | Length: 0x%x%x | Size: %x | Type: %d\n", mmmt->addr_high, mmmt->addr_low, mmmt->len_high, mmmt->len_low, mmmt->size, mmmt->type);
 
         installed_memory += mmmt->len_low;
     }
 
     generate_map(usable_mem_start, usable_mem_len); // tell the generator how much memory to initally mark as being free
-    lock_pages(&kernel_start, ((uint32_t)&kernel_end-(uint32_t)&kernel_start)/0x1000 + 1); // lock pages for the kernel code
-    printf("MEMORY - kernel: start 0x%x, end 0x%x\n", &kernel_start, &kernel_end);
-    printf("MEMORY: installed %dKB, reserved %dKB, usable %dKB\n", installed_memory/1024, reserved_memory/1024, usable_memory/1024);
-    printf("MEMORY: free %dKB, used %dKB\n", free_memory/1024, used_memory/1024);
+    lock_pages(&kernel_start, size_to_page_count((uint32_t)&kernel_end-(uint32_t)&kernel_start)); // lock pages for the kernel code
+    console_log("MEMORY - kernel: start 0x%x, end 0x%x\n", &kernel_start, &kernel_end);
+    console_log("MEMORY: installed %dKB, reserved %dKB, usable %dKB\n", installed_memory/1024, reserved_memory/1024, usable_memory/1024);
+    console_log("MEMORY: free %dKB, used %dKB\n", free_memory/1024, used_memory/1024);
 }
 
 static void generate_map(uint32_t usable_mem_start, size_t len)
 {
     map_size = installed_memory / 0x1000;
-    map = kmalloc(map_size, 1, 0); // alloc space for the map
+    map = kmalloc(map_size, 0, 0); // alloc space for the map
 
     // set the entire map as reserved
-    for (int i = 0; i < map_size; i++)
+    for(int i = 0; i < map_size; i++)
         map[i] = PAGE_RESERVED;
 
     // free pages that fit the usable memory
     uint32_t index = usable_mem_start / 0x1000 + 1;
     uint32_t count = len / 0x1000 - 1;
-    for (int i = 0; i < count; i++)
+    for(int i = 0; i < count; i++)
         map[i + index] = PAGE_FREE;
 
     // determine the amount of initial reserved and useable memory
-    for (int i = 0; i < map_size; i++)
+    for(int i = 0; i < map_size; i++)
         if(map[i] == PAGE_RESERVED) reserved_memory += 4096;
         else if(map[i] == PAGE_FREE) usable_memory += 4096;
+    
     free_memory = usable_memory;
 }
 
@@ -126,8 +128,8 @@ void reserve_pages(void *address, size_t count)
 
 void* request_page()
 {
-    for (int i = 0; i < map_size; i++)
-        if (map[i] == PAGE_FREE)
+    for(int i = 0; i < map_size; i++)
+        if(map[i] == PAGE_FREE)
         {
             lock_page((void*)(i * 0x1000));
             return (void*)(i * 4096);
@@ -135,6 +137,14 @@ void* request_page()
 
     return NULL;
     // out of ram
+}
+
+size_t size_to_page_count(size_t size_bytes)
+{
+    if(size_bytes % 0x1000 == 0)
+        return size_bytes / 0x1000;
+    else
+        return size_bytes / 0x1000 + 1;
 }
 
 void get_ram_size() { return installed_memory;}

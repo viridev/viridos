@@ -1,5 +1,5 @@
 #include "gdt.h"
-#include <video/vga_text.h>
+#include <console.h>
 
 // Lets us access our ASM functions from our C code.
 extern void gdt_flush(uint32_t);
@@ -22,7 +22,7 @@ void gdt_init()
    gdt_set_gate(4, 0, 0xFFFFFFFF, 0xF2, 0xCF); // User mode data segment
 
    gdt_flush((uint32_t)&gdt_ptr);
-   printf("GDT initialized.\n");
+   console_log("GDT initialized.\n");
 }
 
 // Set the value of one GDT entry.

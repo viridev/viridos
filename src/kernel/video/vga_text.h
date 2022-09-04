@@ -18,11 +18,6 @@ enum VGA_COLOR
 	LIGHT_CYAN = 11,
 	LIGHT_RED = 12,
 	LIGHT_MAGENTA = 13,
-	LIGHT_BROWN = 14,
+	YELLOW = 14,
 	WHITE = 15,
 };
-
-void console_init();
-void clear();
-void print(const char* str);
-void printf(const char *str, ...);

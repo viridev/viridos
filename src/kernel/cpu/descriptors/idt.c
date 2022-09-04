@@ -1,5 +1,5 @@
 #include "idt.h"
-#include <video/vga_text.h>
+#include <console.h>
 #include <cpu/interrupts/pic.h>
 
 static void idt_set_gate(uint8_t, uint32_t, uint16_t, uint8_t);
@@ -67,7 +67,7 @@ void idt_init()
    pic_remap(0b11111101, 0xff);
    idt_flush((uint32_t)&idt_ptr);
 
-   printf("IDT initialized.\n");
+   console_log("IDT initialized.\n");
 }
 
 static void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags)

@@ -1,7 +1,9 @@
 #include "pit.h"
+#include <console.h>
 #include <cpu/interrupts/irq.h>
-#include <video/vga_text.h>
 #include <cpu/io.h>
+
+#include <runtime/tasking.h>
 
 static void pit_set_freq(int hz)
 {
@@ -13,7 +15,7 @@ static void pit_set_freq(int hz)
 
 void pit_handler(struct regs *r)
 {
-    // do nothing for now lol
+    //tasking_next();
 }
 
 void pit_init(int hz)
@@ -23,5 +25,5 @@ void pit_init(int hz)
     pit_set_freq(hz);
 
     asm("sti"); // set the interrupt flag so the IRQs actually get called
-    printf("PIT initialized with a freq of %dhz.\n", hz);
+    console_log("PIT initialized with a freq of %dhz.\n", hz);
 }
