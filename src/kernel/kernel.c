@@ -8,10 +8,13 @@
 
 #include <cpu/descriptors/gdt.h>
 #include <cpu/descriptors/idt.h>
-#include <cpu/pit.h>
 
 #include <memory/mem.h>
 #include <memory/paging.h>
+
+#include <cpu/pit.h>
+
+#include <other/pci.h>
 
 void kernel_main(multiboot_t *mbd)
 {
@@ -23,10 +26,11 @@ void kernel_main(multiboot_t *mbd)
 
 	mem_init();
 	page_frame_allocator_init();
-
 	paging_init();
 
 	pit_init(500);
+
+	pci_enumerate();
 
 	while (1)
 		asm volatile ("hlt");
