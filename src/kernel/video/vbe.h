@@ -58,3 +58,5 @@ typedef struct {
 
 vbe_mode_info_t *vbe_current_mode;
 void vbe_init();
+
+int vbe_initialized;

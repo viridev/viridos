@@ -1,4 +1,5 @@
 #include "vbe.h"
+#include <console.h>
 #include <realmode.h>
 
 vbe_info_t *vib;
@@ -77,8 +78,11 @@ void vbe_init(int width, int height, int bpp)
 		{
 			vbe_current_mode = mode;
 			vbe_set_mode(&modes[i]);
+
+			vbe_initialized = 1;
+			
 			return;
 		}
     }
-	printf("No corresponding video mode found! (%d, %d, %d)", width, height, bpp);
+	console_log("No corresponding video mode found! (%d, %d, %d)", width, height, bpp);
 }

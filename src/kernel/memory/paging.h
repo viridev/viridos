@@ -30,3 +30,5 @@ typedef struct
 } page_dir_t;
 
 void paging_init();
+
+page_dir_t *kernel_dir;

@@ -1,13 +1,14 @@
 #include "paging.h"
 #include <memory/mem.h>
+#include <memory/page_frame_allocator.h>
 #include <video/vga_text.h>
 
-page_dir_t *kernel_dir = 0;
 page_dir_t *currentd_dir = 0;
 
 extern void load_page_dir(uintptr_t*);
 extern void enable_paging();
 
+// kernel dir
 page_table_t *first_page_table;
 
 void paging_init()
