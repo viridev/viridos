@@ -34,7 +34,7 @@ void page_frame_allocator_init()
                 usable_mem_len = mmmt->len_low;
                 usable_mem_start = mmmt->addr_low;
             }                
-        console_log("Start Addr: 0x%x%x | Length: 0x%x%x | Size: %x | Type: %d\n", mmmt->addr_high, mmmt->addr_low, mmmt->len_high, mmmt->len_low, mmmt->size, mmmt->type);
+        // console_log("Start Addr: 0x%x%x | Length: 0x%x%x | Size: %x | Type: %d\n", mmmt->addr_high, mmmt->addr_low, mmmt->len_high, mmmt->len_low, mmmt->size, mmmt->type);
 
         installed_memory += mmmt->len_low;
     }

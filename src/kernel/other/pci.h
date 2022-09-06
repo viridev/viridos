@@ -13,6 +13,7 @@ typedef struct pci_device
     uint16_t device_id;
     uint8_t class_id;
     uint8_t subclass_id;
+    uint8_t prog_interface_id;
 } pci_device_t;
 
 

@@ -39,8 +39,9 @@ void pci_enumerate()
             pci.device_id = pci_read_word(bus, device, 0, 0x2);
             pci.class_id = pci_read_word(bus, device, 0, 0xA) >> 8;
             pci.subclass_id = pci_read_word(bus, device, 0, 0xA) & 0x00FF;
+            pci.prog_interface_id = pci_read_word(bus, device, 0, 0x8) >> 8;
             
-            console_log("0x%x, 0x%x, 0x%x, 0x%x", pci.vendor_id, pci.device_id, pci.class_id, pci.subclass_id);
+            console_log("0x%x, 0x%x, 0x%x, 0x%x, 0x%x", pci.vendor_id, pci.device_id, pci.class_id, pci.subclass_id, pci.prog_interface_id);
 
             pci_devices[dev_index] = pci;
             dev_index++;
