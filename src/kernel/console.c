@@ -94,6 +94,7 @@ void printf(const char *str, ...)
             if (str[i] == 's') print(va_arg(list, const char*));
             if (str[i] == 'd') print(itoa(va_arg(list, int), buf, 10));
             if (str[i] == 'x') print(itoa(va_arg(list, int), buf, 16));
+            if (str[i] == 'c') put_char(va_arg(list, int));
             break;
         default:
             put_char(str[i]);

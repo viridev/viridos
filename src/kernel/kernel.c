@@ -26,11 +26,11 @@ void kernel_main(multiboot_t *mbd)
 
 	mem_init();
 	page_frame_allocator_init();
-	//paging_init();
-
-	pit_init(500);
+	// paging_init();
 
 	pci_enumerate();
+
+	pit_init(500);
 
 	while (1)
 		asm volatile ("hlt");
