@@ -29,11 +29,14 @@ void page_frame_allocator_init()
 
         // get the biggest usable memory block
         if(mmmt->type == MULTIBOOT_MEMORY_AVAILABLE)
+        {
             if(mmmt->len_low > usable_mem_len)
             {
                 usable_mem_len = mmmt->len_low;
                 usable_mem_start = mmmt->addr_low;
             }                
+            console_log("Start Addr: 0x%x | Length: 0x%x = %dKB = %dMB", mmmt->addr_high << 32 | mmmt->addr_low, mmmt->len_high << 32 | mmmt->len_low, mmmt->len_low / 1024, mmmt->len_low / 1024 / 1024);
+        }
         // console_log("Start Addr: 0x%x%x | Length: 0x%x%x | Size: %x | Type: %d\n", mmmt->addr_high, mmmt->addr_low, mmmt->len_high, mmmt->len_low, mmmt->size, mmmt->type);
 
         installed_memory += mmmt->len_low;

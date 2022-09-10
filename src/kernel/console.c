@@ -39,7 +39,8 @@ static void scroll()
 {
     cursor_y = console_height - 1;
     cursor_x = 0;
-    memcpy(&buffer, &buffer + console_width * 2, console_width * console_height * 2 - console_width * 2);
+    for (int i = 0; i < console_width * (console_height-1); i++)
+        buffer[i] = buffer[i + console_width];
     for (int i = 0; i < console_width; i++)
         buffer[console_width * (console_height-1) + i] = ((uint16_t)color_bg << 12 | color_fg << 8) | ' ';
 }
@@ -57,14 +58,14 @@ static void put_char(char c)
         inc_x();
         break;
     }
-    if (cursor_y >= console_width)
+    if (cursor_y >= console_height)
         scroll();
 }
 
 void clear()
 {
     for (size_t i = 0; i < console_width * console_height; i++)
-        put_char(' ');
+        buffer[i] = color_bg << 12 | color_fg << 8 | ' ';
     cursor_x = 0;
     cursor_y = 0;
 }
@@ -76,10 +77,10 @@ static void print(const char *str)
 }
 
 // prototype
-char* itoa(int value, char * str, int base);
+char* itoa(uint64_t value, char * str, int base);
 
 static char buf[256];
-static void printf(const char *str, ...)
+void printf(const char *str, ...)
 {
     va_list list;
     va_start(list, 256);
@@ -93,6 +94,7 @@ static void printf(const char *str, ...)
             if (str[i] == 's') print(va_arg(list, const char*));
             if (str[i] == 'd') print(itoa(va_arg(list, int), buf, 10));
             if (str[i] == 'x') print(itoa(va_arg(list, int), buf, 16));
+            if (str[i] == 'c') put_char(va_arg(list, int));
             break;
         default:
             put_char(str[i]);
@@ -136,6 +138,7 @@ void console_log(char *str, ...)
             break;
         }
     }
+
     print("\n");
         
     va_end(list);
@@ -232,7 +235,7 @@ void console_update()
     
 }
 
-char* itoa(int value, char * str, int base)
+char* itoa(uint64_t value, char * str, int base)
 {
     char * rc;
     char * ptr;

@@ -1,6 +1,7 @@
 #include "pci.h"
 #include <cpu/io.h>
 #include <console.h>
+#include <drivers/ahci/ahci.h>
 
 pci_device_t pci_devices[256];
 int dev_index = 0;
@@ -34,16 +35,29 @@ void pci_enumerate()
             pci_device_t pci;
             pci.bus = bus;
             pci.device = device;
-
             pci.vendor_id = vendor_id;
             pci.device_id = pci_read_word(bus, device, 0, 0x2);
             pci.class_id = pci_read_word(bus, device, 0, 0xA) >> 8;
             pci.subclass_id = pci_read_word(bus, device, 0, 0xA) & 0x00FF;
             pci.prog_interface_id = pci_read_word(bus, device, 0, 0x8) >> 8;
+
+            pci.bar5 = pci_read_word(bus, device, 0, 0x26) << 16 | pci_read_word(bus, device, 0, 0x24);
+
             
             console_log("0x%x, 0x%x, 0x%x, 0x%x, 0x%x", pci.vendor_id, pci.device_id, pci.class_id, pci.subclass_id, pci.prog_interface_id);
 
             pci_devices[dev_index] = pci;
+
+            switch (pci.class_id)
+            {
+            case 0x1: // Mass Storage Controller
+                if (pci.subclass_id == 0x6 /*Serial ATA Controller*/ && pci.prog_interface_id == 0x1 /*AHCI 1.0*/)
+                    ahci_init(&pci_devices[dev_index]);
+                break;
+            default:
+                break;
+            }
+
             dev_index++;
         }
     }
