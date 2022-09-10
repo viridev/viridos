@@ -161,23 +161,67 @@ int ahci_read_port(port_t *port, uint64_t sector, uint32_t sector_count, void *b
 
     port->hba_port->cmd_issue = 1;
 
-    printf("");
-
-    // while (1)
-    // {
-    //     if(port->hba_port->cmd_issue == 0) break; // cmd is done
-    //     if(port->hba_port->interrupt_status & HBA_PxIS_TFES) // error
-    //     {
-    //         return 0;
-    //     }
-    // }
-
-    if(port->hba_port->interrupt_status & HBA_PxIS_TFES) // error
+    if(port->hba_port->interrupt_status & HBA_PxIS_TFES)
     {
-        return 0;
+        return 0; // error
     }
 
     return 1;
+}
+
+int ahci_write_port(port_t *port, uint64_t sector, uint32_t sector_count, void *buffer)
+{
+    uint32_t spin = 0;
+    while ((port->hba_port->task_file_data & (ATA_DEV_BUSY | ATA_DEV_DRQ)) && spin < 1000000)
+    {
+        spin++;
+    }
+    if (spin == 1000000) return 0; // read not successful
+
+    uint32_t sector_low = (uint32_t)sector;
+    uint32_t sector_high = (uint32_t)(sector >> 32);
+
+    port->hba_port->interrupt_status = (uint32_t)-1;
+
+    hba_cmd_header_t *cmd_header = (hba_cmd_header_t*)port->hba_port->cmd_list_base;
+    cmd_header->cmd_fis_length = sizeof(FIS_REG_H2D_t) / sizeof(uint32_t);
+    cmd_header->write = 1;
+    cmd_header->prdt_length = 1;
+
+    hba_cmd_table_t *cmd_table = (hba_cmd_table_t*)(cmd_header->cmd_table_base);
+    memset(cmd_table, 0, sizeof(hba_cmd_table_t) + (cmd_header->prdt_length-1) * sizeof(hba_prdt_entry_t));
+
+    cmd_table->prdt_entry[0].data_base_addr = (uint32_t)buffer;
+    cmd_table->prdt_entry[0].data_base_addr_upper = 0;
+    cmd_table->prdt_entry[0].byte_count = (sector_count << 9) - 1; // 512 bytes per sector
+    cmd_table->prdt_entry[0].interrupt_on_completion = 1;
+
+    FIS_REG_H2D_t *cmd_fis = (FIS_REG_H2D_t*)(&cmd_table->cmd_fis);
+    cmd_fis->fis_type = FIS_TYPE_REG_H2D;
+    cmd_fis->cmd_control = 1; // command
+    cmd_fis->cmd = ATA_CMD_WRITE_DMA_EX;
+
+    cmd_fis->lba0 = (uint8_t)(sector_low);
+    cmd_fis->lba1 = (uint8_t)(sector_low >> 8);
+    cmd_fis->lba2 = (uint8_t)(sector_low >> 16);
+    cmd_fis->lba3 = (uint8_t)(sector_high);
+    cmd_fis->lba4 = (uint8_t)(sector_high >> 8);
+    cmd_fis->lba5 = (uint8_t)(sector_high >> 16);
+
+    cmd_fis->device_register = 1 << 6; // set LBA mode
+
+    cmd_fis->count_low = sector_count & 0xFF;
+    cmd_fis->count_high = (sector_count >> 8) & 0xFF;
+
+    port->hba_port->cmd_issue = 1;
+
+    if(port->hba_port->interrupt_status & HBA_PxIS_TFES)
+    {
+        return 0; // error
+    }
+
+    return 1;
+
 }
 
 void ahci_init(pci_device_t *pci)
@@ -196,13 +240,17 @@ void ahci_init(pci_device_t *pci)
         else if (port->port_type == SATAPI) console_log("SATAPI device found.");
         else console_log("Invalid port type.");
 
-        port->buffer = kmalloc(4096, 1, 0);
-        memset(port->buffer, 0, 4096);
-        if(!ahci_read_port(port, 0, 4, port->buffer))
+        port->buffer = kmalloc(512, 1, 0);
+        memset(port->buffer, 0, 512);
+        if (!ahci_read_port(port, 0, 1, port->buffer))
             console_error("Could not read sectors!");
-
-        console_log("%s", (char*)(port->buffer));
+        printf("\n");
+        for (int i = 0; i < 128; i++)
+        {
+            printf("%x ", port->buffer[i]);
+        }
+        
     }
-    
+    printf("\n");
     console_log("AHCI driver initialized.");
 }
