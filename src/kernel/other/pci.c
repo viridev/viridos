@@ -25,26 +25,46 @@ void pci_enumerate()
     console_log("Enumerating PCI devices.");
 
     for (int bus = 0; bus < 256; bus++)
-    {
         for (int device = 0; device < 32; device++)
         {
-            uint16_t vendor_id = pci_read_word(bus, device, 0, 0);
-            if (vendor_id == 0xFFFF)
-                continue; // Device doesn't exist
+            int func;
+            for (func = 0; func < 256; func++)
+            {
+                if (pci_read_word(bus, device, func, 0) != 0xFFFF) // vendor id
+                        break;
+            }
+            if (func == 256) continue;
 
             pci_device_t pci;
             pci.bus = bus;
             pci.device = device;
-            pci.vendor_id = vendor_id;
-            pci.device_id = pci_read_word(bus, device, 0, 0x2);
-            pci.class_id = pci_read_word(bus, device, 0, 0xA) >> 8;
-            pci.subclass_id = pci_read_word(bus, device, 0, 0xA) & 0x00FF;
-            pci.prog_interface_id = pci_read_word(bus, device, 0, 0x8) >> 8;
+            pci.func = func;
 
-            pci.bar5 = pci_read_word(bus, device, 0, 0x26) << 16 | pci_read_word(bus, device, 0, 0x24);
+            pci.vendor_id = pci_read_word(bus, device, func, 0x0);
+            pci.device_id = pci_read_word(bus, device, func, 0x2);
 
+            pci.revision_id = pci_read_word(bus, device, func, 0x8) & 0xFF;
+            pci.prog_interface_id = pci_read_word(bus, device, func, 0x8) >> 8;
+            pci.subclass_id = pci_read_word(bus, device, func, 0xA) & 0xFF;
+            pci.class_id = pci_read_word(bus, device, func, 0xA) >> 8;           
+
+            pci.cache_line_size = pci_read_word(bus, device, func, 0xC) & 0xFF;
+            pci.latency_timer = pci_read_word(bus, device, func, 0xC) >> 8;
+            pci.header_type = pci_read_word(bus, device, func, 0xE) & 0xFF;
+            pci.bist = pci_read_word(bus, device, func, 0xE) >> 8;        
             
-            console_log("0x%x, 0x%x, 0x%x, 0x%x, 0x%x", pci.vendor_id, pci.device_id, pci.class_id, pci.subclass_id, pci.prog_interface_id);
+            switch (pci.header_type)
+            {
+            case 0x0: ;
+                ext_header_1_t *ext_hdr = (ext_header_1_t*)&pci.ext_header;
+
+                ext_hdr->bar5 = pci_read_word(bus, device, func, 0x26) << 16 | pci_read_word(bus, device, func, 0x24);
+                break;
+            default:
+                break;
+            }
+            
+            console_log("0x%x, 0x%x, 0x%x, 0x%x, 0x%x - %d %d %d", pci.vendor_id, pci.device_id, pci.class_id, pci.subclass_id, pci.prog_interface_id, bus, device, func);
 
             pci_devices[dev_index] = pci;
 
@@ -60,7 +80,7 @@ void pci_enumerate()
 
             dev_index++;
         }
-    }
+     
 
     console_log("Found %d PCI devices.", dev_index);
 }

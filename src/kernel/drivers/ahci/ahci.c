@@ -227,7 +227,7 @@ int ahci_write_port(port_t *port, uint64_t sector, uint32_t sector_count, void *
 void ahci_init(pci_device_t *pci)
 {
     pci_device = pci;
-    abar = (hba_memory_t*)pci->bar5;
+    abar = ((ext_header_1_t*)&pci->ext_header)->bar5;
 
     probe_ports();
 
@@ -244,10 +244,11 @@ void ahci_init(pci_device_t *pci)
         memset(port->buffer, 0, 512);
         if (!ahci_read_port(port, 0, 1, port->buffer))
             console_error("Could not read sectors!");
-        printf("\n");
+
+        printf(" ");
         for (int i = 0; i < 128; i++)
         {
-            printf("%x ", port->buffer[i]);
+            printf("%c", port->buffer[i]);
         }
         
     }
