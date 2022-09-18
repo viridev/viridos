@@ -76,13 +76,13 @@ void pci_enumerate()
         for (int device = 0; device < 32; device++)
         {
             if (pci_read_word(bus, device, 0, 0) == 0xFFFF)
-                break;
+                continue;
 
             if((check_device(bus, device, 0)->header_type & 0x80) != 0) // multi-function device
             {
-                for (int func = 1; func < 256; func++)
+                for (int func = 1; func < 8; func++)
                 {
-                    if (pci_read_word(bus, device, func, 0) != 0xFFFF) // vendor id
+                    if (pci_read_word(bus, device, func, 0) != 0xFFFF)
                             check_device(bus, device, func);
                 }
             }  
