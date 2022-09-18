@@ -30,7 +30,8 @@ void page_frame_allocator_init()
         // get the biggest usable memory block
         if(mmmt->type == MULTIBOOT_MEMORY_AVAILABLE)
         {
-            if(mmmt->len_low > usable_mem_len)
+            uint64_t mem_len = mmmt->len_high << 32 | mmmt->addr_low; 
+            if(mem_len > usable_mem_len)
             {
                 usable_mem_len = mmmt->len_low;
                 usable_mem_start = mmmt->addr_low;

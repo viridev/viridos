@@ -15,7 +15,8 @@ static void pit_set_freq(int hz)
 
 void pit_handler(struct regs *r)
 {
-    //tasking_next();
+    if (tasking_initialized)
+        tasking_next();
 }
 
 void pit_init(int hz)

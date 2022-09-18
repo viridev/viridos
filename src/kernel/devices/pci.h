@@ -7,18 +7,8 @@
 // the extended header 
 #define EXT_HEADER_SIZE 48 // size of the extended header in bytes
 
-typedef struct pci_device
+typedef struct ext_header_1
 {
-    uint32_t bus;
-    uint32_t device;
-
-    uint16_t vendor_id;
-    uint16_t device_id;
-    uint8_t class_id;
-    uint8_t subclass_id;
-    uint8_t prog_interface_id;
-
-    //temp solution
     uint32_t bar0;
     uint32_t bar1;
     uint32_t bar2;
@@ -37,6 +27,31 @@ typedef struct pci_device
     uint8_t interrupt_pin;
     uint8_t min_grant;
     uint8_t max_latency;
+} ext_header_1_t;
+
+typedef struct pci_device
+{
+    uint32_t bus;
+    uint32_t device;
+    uint32_t func;
+
+    uint16_t vendor_id;
+    uint16_t device_id;
+
+    uint16_t cmd;
+    uint16_t status;
+
+    uint8_t revision_id;
+    uint8_t prog_interface_id;
+    uint8_t subclass_id;
+    uint8_t class_id;
+    
+    uint8_t cache_line_size;
+    uint8_t latency_timer;
+    uint8_t header_type;
+    uint8_t bist;
+
+    uint32_t ext_header[12];
 } pci_device_t;
 
 

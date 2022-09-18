@@ -1,6 +1,7 @@
 #include "vbe.h"
 #include <console.h>
 #include <realmode.h>
+#include <memory/mem.h>
 
 vbe_info_t *vib;
 vbe_mode_info_t *mib;
@@ -61,25 +62,32 @@ int vbe_set_mode(int mode)
 	return 0;
 }
 
-#include <video/vga_text.h>
-
 void vbe_init(int width, int height, int bpp)
 {
 	vib = vbe_get_info();
+	if (vib == 0)
+	{
+		console_error("VBE: could not retrieve vib info.");
+		return;
+	}
 
     uint16_t *modes = (uint16_t *)(vib->video_modes);
 
-	int i = 0;
-    for(; modes[i] != 0xFFFF; i++)
+    for(int i = 0; modes[i] != 0xFFFF; i++)
     {
         vbe_mode_info_t *mode = vbe_get_mode_info(i);
 
         if(mode->width == width && mode->height == height && mode->bpp == bpp)
 		{
+			console_log("Video mode found!");
 			vbe_current_mode = mode;
-			vbe_set_mode(&modes[i]);
-
-			vbe_initialized = 1;
+			if(!vbe_set_mode(&modes[i]))
+			{
+				console_error("VBE: could not set video mode.");
+				vbe_initialized = 1;
+			}
+			else
+				console_log("Video mode set!");
 			
 			return;
 		}

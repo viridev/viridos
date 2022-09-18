@@ -148,7 +148,7 @@ void console_log(char *str, ...)
 
 void console_warn(char *str, ...)
 {
-    color_fg = DARK_GREY;
+    color_fg = YELLOW;
     print("[");
     color_fg = LIGHT_GREY;
     print("WARN");

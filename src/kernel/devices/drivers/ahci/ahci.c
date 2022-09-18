@@ -226,8 +226,10 @@ int ahci_write_port(port_t *port, uint64_t sector, uint32_t sector_count, void *
 
 void ahci_init(pci_device_t *pci)
 {
+    if (ahci_initialized) return;
+
     pci_device = pci;
-    abar = (hba_memory_t*)pci->bar5;
+    abar = ((ext_header_1_t*)&pci->ext_header)->bar5;
 
     probe_ports();
 
@@ -237,20 +239,10 @@ void ahci_init(pci_device_t *pci)
         port_configure(port);
 
         if (port->port_type == SATA) console_log("SATA device found. Port number: %d", port->port_number);
-        else if (port->port_type == SATAPI) console_log("SATAPI device found.");
-        else console_log("Invalid port type.");
-
-        port->buffer = kmalloc(512, 1, 0);
-        memset(port->buffer, 0, 512);
-        if (!ahci_read_port(port, 0, 1, port->buffer))
-            console_error("Could not read sectors!");
-        printf("\n");
-        for (int i = 0; i < 128; i++)
-        {
-            printf("%x ", port->buffer[i]);
-        }
-        
+        else if (port->port_type == SATAPI) console_log("SATAPI device found. Port number: %d", port->port_number);
+        else console_log("Invalid port type.");        
     }
     printf("\n");
+    ahci_initialized = 1;
     console_log("AHCI driver initialized.");
 }

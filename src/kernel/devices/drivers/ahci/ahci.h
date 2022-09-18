@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include <other/pci.h>
+#include <devices/pci.h>
 
 #define HBA_PORT_DEV_PRESENT 0x3
 #define HBA_PORT_IPM_ACTIVE 0x1
@@ -161,5 +161,7 @@ enum PORT_TYPE
     PM = 3,
     SATAPI =  4, // optical drives and such
 };
+
+int ahci_initialized;
 
 void ahci_init(pci_device_t *pci);

@@ -1,5 +1,4 @@
 #include "mem.h"
-#include <video/vga_text.h>
 
 uint32_t placement_adr;
 
