@@ -36,6 +36,9 @@ void kernel_main(multiboot_t *mbd)
 
 	ps2_kb_init();
 	
+	console_log("Press any key to continue...");
+	printf(">");
+	console_wait_for_key();
 	kshell_start();
 
 	while (1)

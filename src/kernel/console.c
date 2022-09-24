@@ -242,6 +242,15 @@ uint8_t previous_key; // previous key
 int repeating = 0;
 int last_time;
 
+int bump = 0;
+
+void console_wait_for_key()
+{
+    while(!bump);
+
+    bump = 0;
+}
+
 void console_read_line(char *d)
 {
     loc = 0;
@@ -254,6 +263,7 @@ void console_read_line(char *d)
     while (reading_input);
 
     loc = 0;
+    dest = 0;
     repeating = 0;
     previous_key = 0;
     last_time = 0;
@@ -261,6 +271,8 @@ void console_read_line(char *d)
 
 void console_on_key_down()
 {
+    bump = 1;
+
     if (!reading_input) return;
 
     if (loc == 256)
