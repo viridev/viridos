@@ -13,7 +13,6 @@
 #define ATA_DEV_BUSY 0x80
 #define ATA_DEV_DRQ 0x08
 
-
 #define ATA_CMD_WRITE_DMA_EX 0x35
 #define ATA_CMD_READ_DMA_EX 0x25
 
@@ -164,4 +163,6 @@ enum PORT_TYPE
 
 int ahci_initialized;
 
+int ahci_read_port(port_t *port, uint64_t sector, uint32_t sector_count, void *buffer);
+int ahci_write_port(port_t *port, uint64_t sector, uint32_t sector_count, void *buffer);
 void ahci_init(pci_device_t *pci);

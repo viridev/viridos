@@ -12,9 +12,12 @@
 #include <memory/mem.h>
 #include <memory/paging.h>
 
-#include <cpu/pit.h>
+#include <devices/pci.h>
 
-#include <other/pci.h>
+#include <devices/chips/pit.h>
+#include <devices/drivers/ps2/ps2_kb.h>
+
+#include <kshell.h>
 
 void kernel_main(multiboot_t *mbd)
 {
@@ -27,10 +30,16 @@ void kernel_main(multiboot_t *mbd)
 	mem_init();
 	page_frame_allocator_init();
 	// paging_init();
-
+	
 	pci_enumerate();
+	pit_init(200);
 
-	pit_init(500);
+	ps2_kb_init();
+	
+	console_log("Press any key to continue...");
+	printf(">");
+	console_wait_for_key();
+	kshell_start();
 
 	while (1)
 		asm volatile ("hlt");

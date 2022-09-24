@@ -3,9 +3,6 @@
 #include <console.h>
 #include <devices/drivers/ahci/ahci.h>
 
-pci_device_t pci_devices[256];
-int dev_index = 0;
-
 static uint16_t pci_read_word(uint8_t bus, uint8_t device, uint8_t func, uint8_t offset)
 {
     uint32_t addr = ((uint32_t)bus << 16)

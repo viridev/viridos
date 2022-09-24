@@ -61,6 +61,14 @@ static void probe_ports()
 #define HBA_PxCMD_ST 0x0001 // bit 1
 #define HBA_PxCMD_FR 0x4000 // bit 14
 
+static void start_cmd(port_t *port)
+{
+    while (port->hba_port->cmd_and_status & HBA_PxCMD_CR); // wait until the command list DMA engine for the port stops running
+
+    port->hba_port->cmd_and_status |= HBA_PxCMD_FRE; 
+    port->hba_port->cmd_and_status |= HBA_PxCMD_ST; // Whenever this bit is changed from a ‘0’ to a ‘1’, the HBA starts processing the command list. This bit shall only be set to ‘1’ by software after PxCMD.FRE has been set to ‘1’.
+}
+
 static void stop_cmd(port_t *port)
 {
     port->hba_port->cmd_and_status &= ~HBA_PxCMD_ST; // set the start bit off
@@ -76,14 +84,6 @@ static void stop_cmd(port_t *port)
         break;
     }
     
-}
-
-static void start_cmd(port_t *port)
-{
-    while (port->hba_port->cmd_and_status & HBA_PxCMD_CR); // wait until the command list DMA engine for the port stops running
-
-    port->hba_port->cmd_and_status |= HBA_PxCMD_FRE; 
-    port->hba_port->cmd_and_status |= HBA_PxCMD_ST; // Whenever this bit is changed from a ‘0’ to a ‘1’, the HBA starts processing the command list. This bit shall only be set to ‘1’ by software after PxCMD.FRE has been set to ‘1’.
 }
 
 static void port_configure(port_t *port)
@@ -242,7 +242,6 @@ void ahci_init(pci_device_t *pci)
         else if (port->port_type == SATAPI) console_log("SATAPI device found. Port number: %d", port->port_number);
         else console_log("Invalid port type.");        
     }
-    printf("\n");
     ahci_initialized = 1;
     console_log("AHCI driver initialized.");
 }

@@ -1,7 +1,7 @@
 SOURCES=$(shell find ./kernel -name '*.c')
 
 CC=i686-elf-gcc
-CFLAGS=-Ikernel/ -I./ -fno-use-cxa-atexit -ffreestanding -O2 -Wall -Wextra -fno-exceptions -fno-rtti -Wno-write-strings -Wno-unused-variable -w -Wno-narrowing -Wno-sign-compare -Wno-type-limits -Wno-unused-parameter -Wno-missing-field-initializers
+CFLAGS=-Ikernel/ -I./ -fno-use-cxa-atexit -ffreestanding -Wall -Wextra -fno-exceptions -fno-rtti -Wno-write-strings -Wno-unused-variable -w -Wno-narrowing -Wno-sign-compare -Wno-type-limits -Wno-unused-parameter -Wno-missing-field-initializers
 C_FILES_OUT = $(SOURCES:.c=.o)
 
 LD=i686-elf-gcc
