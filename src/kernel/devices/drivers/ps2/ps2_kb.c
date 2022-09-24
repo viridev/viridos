@@ -3,63 +3,45 @@
 #include <cpu/io.h>
 
 int shift = 0;
-const char *keys = "  1234567890-=\b\tqwertyuiop[]\n  asdfghjkl;'` \\zxcvbnm,./";
-const char *keys_shift = "  !@#$%^&*()_+\b\tQWERTYUIOP{}\n  ASDFGHJKL:\"~ |ZXCVBNM<>?";
-
-char kb_code_to_ascii(uint8_t key)
-{
-    switch (key)
-    {
-    case 0x39:
-        return ' ';
-        break;
-    default:
-        if (key >= 0x2 && key <= 0x35)
-        {
-            char c;
-            if (shift)
-                c = keys_shift[key];
-            else
-                c = keys[key];
-            if (c != ' ') return c;
-        }            
-        break;
-    }
-
-    return '\0';
-}
 
 uint8_t last_key;
 uint8_t key_map[0x58];
 void kb_handler(struct regs *r)
 {
     uint8_t code = inb(0x60);
-    last_key = code;
 
-    switch (code)
-    {
-    case 0x2A: // left shift pressed
-        shift = 1;
-        break;
-    case 0xAA: // left shift released
+    if (code == 0x2A)
+        shift = 1;     
+    else if (code == 0xAA)
         shift = 0;
-        break;
-    }
-
-    if (code > 0x80) // key release
+    else if (code > 0x80) // key release
+    {
         key_map[code - 0x80] = 0;
+        if (code - 0x80 == last_key) last_key = 0;
+    }
     else
+    {
         key_map[code] = 1;
+        last_key = code;
+    }        
+
+    console_on_key_down();
 }
 
-uint8_t *ps2_kb_get_key_map()
+void ps2_kb_get_key_map(uint8_t *dest)
 {
-    return &key_map;
+    for (int i = 0; i < 0x58; i++)
+        dest[i] = key_map[i];    
 }
 
 uint8_t ps2_kb_get_last_key()
 {
     return last_key;
+}
+
+int ps2_kb_is_shifting()
+{
+    return shift;
 }
 
 void ps2_kb_init()

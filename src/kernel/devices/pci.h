@@ -54,5 +54,7 @@ typedef struct pci_device
     uint32_t ext_header[12];
 } pci_device_t;
 
+pci_device_t pci_devices[256];
+int dev_index;
 
 void pic_enumerate();
