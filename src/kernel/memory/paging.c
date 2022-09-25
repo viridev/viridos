@@ -1,7 +1,6 @@
 #include "paging.h"
 #include <memory/mem.h>
 #include <memory/page_frame_allocator.h>
-#include <video/vga_text.h>
 
 page_dir_t *currentd_dir = 0;
 
