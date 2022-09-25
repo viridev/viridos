@@ -1,6 +1,5 @@
 #include "irq.h"
 #include "pic.h"
-#include <video/vga_text.h>
 
 isr_t irq_handlers[16];
 

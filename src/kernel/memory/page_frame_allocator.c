@@ -31,7 +31,7 @@ void page_frame_allocator_init()
         if(mmmt->type == MULTIBOOT_MEMORY_AVAILABLE)
         {
             uint64_t mem_len = mmmt->len_high << 32 | mmmt->addr_low; 
-            if(mem_len > usable_mem_len)
+            if(mem_len > (uint64_t)usable_mem_len)
             {
                 usable_mem_len = mmmt->len_low;
                 usable_mem_start = mmmt->addr_low;
@@ -151,6 +151,6 @@ size_t size_to_page_count(size_t size_bytes)
         return size_bytes / 0x1000 + 1;
 }
 
-void get_ram_size() { return installed_memory;}
-void get_free_ram() { return free_memory;}
-void get_used_ram() { return used_memory;}
+size_t get_ram_size() { return installed_memory;}
+size_t get_free_ram() { return free_memory;}
+size_t get_used_ram() { return used_memory;}

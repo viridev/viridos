@@ -1,6 +1,5 @@
 #include "console.h"
 #include <utils/conversion.h>
-#include <video/vga_text.h>
 #include <memory/mem.h>
 #include <devices/drivers/ps2/ps2_kb.h>
 #include <devices/chips/pit.h>
@@ -13,6 +12,16 @@ int console_height = 25;
 
 uint8_t color_fg = 0xF;
 uint8_t color_bg = 0x0;
+
+static void vga_set_cursor_pos(int x, int y)
+{
+	uint16_t pos = y * VGA_WIDTH + x;
+ 
+	outb(0x3D4, 0x0F);
+	outb(0x3D5, (uint8_t) (pos & 0xFF));
+	outb(0x3D4, 0x0E);
+	outb(0x3D5, (uint8_t) ((pos >> 8) & 0xFF));
+}
 
 static void inc_x()
 {
@@ -59,6 +68,8 @@ static void put_char(char c)
     }
     if (cursor_y >= console_height)
         scroll();
+
+    vga_set_cursor_pos(cursor_x, cursor_y);
 }
 
 void console_clear()
@@ -260,6 +271,7 @@ void console_read_line(char *d)
     previous_key = 0;
     last_time = pit_get_elapsed_time();
 
+    memset(dest, 0, 256);
     while (reading_input);
 
     loc = 0;

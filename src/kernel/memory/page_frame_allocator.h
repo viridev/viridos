@@ -18,11 +18,11 @@ void* request_page();
 size_t size_to_page_count(size_t size_bytes);
 
 // get the amount of installed ram in bytes
-void get_ram_size();
+size_t get_ram_size();
 // get the amount of free ram in bytes
-void get_free_ram();
+size_t get_free_ram();
 // get the amount of used ram in bytes
-void get_used_ram();
+size_t get_used_ram();
 
 enum PAGE_STATUS
 {
